@@ -16,6 +16,9 @@ class Tablero{
 
         t.miLog=[];
         t.radian=Math.PI/180;
+
+        
+        window.onmousemove=function(ev){t.ratonMoviendose(ev);};
     }
     insertarObjeto(objeto){
         this.objetos.push(objeto);
@@ -50,6 +53,17 @@ class Tablero{
             const log = this.miLog[i];
             this.pintarTexto(10,400+(15*i), log,10);
         }
+    }
+    ratonMoviendose(ev){
+        for(var i=0;i<this.objetos.length;i++){
+            var objeto=this.objetos[i];
+            if(objeto.onMouseMove){
+                objeto.onMouseMove(ev);
+            }
+        }
+    }
+    onKeyPress(t,f){
+
     }
     limpiar(){
         var t=this;
@@ -89,6 +103,9 @@ class Tablero{
         l.font = tamanyo+'px serif';
         l.fillText(texto, x, y);
     }
+    limpiarLog(){
+        this.miLog=[];
+    }
     log(texto, acumular){
         acumular=acumular==undefined?true:false;
         if(acumular){
@@ -110,15 +127,15 @@ var tablero;
 JH5.siListo(function(){
     tablero=new Tablero();
     JH5.cargarJS("js/videojuegos/dron/dron.js",function(){
-        var dron=new Dron(200,200,"recursos/dron.svg");
+        var dron=new Dron(200,200,"recursos/dron.svg",100,100);
         tablero.insertarObjeto(dron);
-        dron.insertarCoordenada(100,100);
+        /*dron.insertarCoordenada(100,100);
         dron.insertarCoordenada(200,400);
         dron.insertarCoordenada(150,60);
-        dron.insertarCoordenada(300,100);
+        dron.insertarCoordenada(100,110);
         dron.insertarCoordenada(200,80);
-        dron.insertarCoordenada(60,600);
+        dron.insertarCoordenada(60,600);/**/
     });
-    //tablero.comenzar();
+    tablero.comenzar();
     
 });
