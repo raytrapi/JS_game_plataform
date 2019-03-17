@@ -1,0 +1,22 @@
+.enemigo-1{
+	display: inline-block;
+	position: absolute;
+	background-color: #0000ff;
+	width: 50px;
+	height: 20px;
+}
+
+#videojuego{
+	z-index: 50;
+	overflow: hidden;
+	max-width: 100%;
+}
+button {
+    z-index: 100;
+    margin: auto;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    height: 100px;
+    widht: 100px;
+}
