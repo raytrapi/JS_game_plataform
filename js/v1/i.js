@@ -3,16 +3,17 @@
 
 /**
  * Devuelve los objetos a buscar dentro de un contenedor
- * String c cadena de busqueda
- * String o objeto contenedor
- * return null | objeto | [objetos]
+ * @param String c cadena de busqueda
+ * @param String o objeto contenedor
+ * @return null | objeto | [objetos]
  */
 function JH5(c, o){
 	var t=JH5;
 	o=o || t.d;
+	//TODO: Controlar si o no es un array
 	switch(c[0]){
 		case "#": 
-			return t.d.getElementById(c.substr(1));
+			return o.getElementById(c.substr(1));
 			break;
 		case ".":
 			return o.getElementsByClassName(c.substr(1));
@@ -28,7 +29,12 @@ JH5.b=null;
 JH5.h=null;
 
 
-
+/**
+ * Llama a la función indicada cuando el objeto existe
+ * @param function f función a llamar cuando el objeto esté creado
+ * @param object | String o Objeto por el que se espera
+ * @param number tiempo tiempo hasta la proxima comprobación
+ */
 JH5.siListo=function(f,o, tiempo){
 	var t=this;
 	var b=t.body();
@@ -88,11 +94,13 @@ JH5.c=function(t, id, c, oC){
 
 /**
  * Método para ejecutar funciones
- * función || string f con la función a ejecutar
+ * @param function | string f con la función a ejecutar
+ * @param object o objeto que invoca la función
+ * @param array p parametros necesarios para llamar a la función
  */
-JH5.e=function(f){
+JH5.e=function(f,o,p){
 	if(typeof(f)=="function"){
-		f.call();
+		f.call(o, p);
 	}else{
 		eval(f);
 	}
@@ -101,9 +109,9 @@ JH5.e=function(f){
 
 /**
  * Método para poner un objeto dentro o cerca de otro
- * object o que será el objeto a posicionar
- * object d que será el objeto de referencia
- * int m que será el modo de posicionamiento
+ * @param object o que será el objeto a posicionar
+ * @param object d que será el objeto de referencia
+ * @param int m que será el modo de posicionamiento
  */
 JH5.poner=function(o,d,m){
 	switch (m){
@@ -129,11 +137,11 @@ JH5.evento=function(o,e,f){
 }
 /**
  * Método de carga de ficheros Javascript
- * string u es la URL de nuestro JS
- * function f será llamada cuando se produzca la carga de nuestro JS
- * return true | false
+ * @param string u es la URL de nuestro JS
+ * @param function f será llamada cuando se produzca la carga de nuestro JS
+ * @return true | false
  */
-JH5.cargarJS=function(u,f){
+JH5.cargarJS=function(u,f,o,parametros){
 	var t=this, c=t.c("script");
 	
 	c.type="text/javascript";
@@ -145,14 +153,14 @@ JH5.cargarJS=function(u,f){
 			var c=this;
 			/*c.onload=null;
 			c.readystatechange=null;*/
-			JH5.e(f);
+			JH5.e(f,o,parametros);
 		});
 		t.evento(c,"onreadystatechange", function(){
 			var c=this;
 			if(c.readyState=="complete" || c.radyState=="loaded"){
 				/*c.onload=null;
 				c.readystatechange=null;*/
-				JH5.e(f);
+				JH5.e(f,o,parametros);
 			}
 		});
 
