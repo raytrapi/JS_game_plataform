@@ -70,10 +70,7 @@ class Invasores{
 		
 	}
 	lanzarDisparo(x,y, tipo){
-		let rayo=new Rayo(x,y,this);
-		this.municion.push(rayo);
-		this.entorno.push(rayo);
-		this.tablero.insertarObjeto(rayo);
+		
 	}
 	musicaFondo=null;
 	cargarMusica(fichero){
@@ -116,44 +113,45 @@ class Invasores{
 	 * @namespace invasores
 	 */
 	inicializar(){
-		JH5.cargarJS("js/videojuegos/invasores/assets/entidadGrafica.js",function(tablero){
-			JH5.cargarJS("js/videojuegos/invasores/assets/armas/rayo.js");
-			JH5.cargarJS("js/videojuegos/invasores/assets/armas/misil.js");
-			JH5.cargarJS("js/videojuegos/invasores/assets/personajes/jugador.js",function(){
+		JH5.cargarJS([ "js/videojuegos/invasores/assets/entidadGrafica.js",
+							"js/videojuegos/invasores/assets/personajes/jugador.js",
+							"js/videojuegos/invasores/assets/personajes/enemigo.js"
+						],function(tablero){
+			
+			var inv=invasores;
+			JH5.siExiste("Tanque",function(){
 				invasores.jugador=new Tanque(invasores.tablero.width/2,invasores.tablero.height-10,invasores);
 				tablero.insertarObjeto(invasores.jugador);
-				//invasores.entorno.push(invasores.jugador);
-			});
-			JH5.cargarJS("js/videojuegos/invasores/assets/personajes/enemigo.js", function(tablero){
-				var inv=invasores;
-				
-				//console.log(tablero);	
-				tablero.insertarObjeto({localizacion:{x:0,y:0},dimension:{w:1,h:inv.tablero.height},tipo:"PARED",collisionable:true});
-				tablero.insertarObjeto({localizacion:{x:inv.tablero.width,y:0},dimension:{w:1,h:inv.tablero.height},tipo:"PARED",collisionable:true});
-				tablero.insertarObjeto({localizacion:{x:0,y:-70},dimension:{w:inv.tablero.width,h:10},tipo:"PARED",collisionable:true});
-				tablero.insertarObjeto({localizacion:{x:0,y:inv.tablero.height},dimension:{w:inv.tablero.width,h:10},tipo:"PARED",collisionable:true});
-				
+			})
+			
+			
+			//console.log(tablero);	
+			tablero.insertarObjeto({localizacion:{x:0,y:0},dimension:{w:1,h:inv.tablero.height},tipo:"PARED",collisionable:true});
+			tablero.insertarObjeto({localizacion:{x:inv.tablero.width,y:0},dimension:{w:1,h:inv.tablero.height},tipo:"PARED",collisionable:true});
+			tablero.insertarObjeto({localizacion:{x:0,y:-70},dimension:{w:inv.tablero.width,h:10},tipo:"PARED",collisionable:true});
+			tablero.insertarObjeto({localizacion:{x:0,y:inv.tablero.height},dimension:{w:inv.tablero.width,h:10},tipo:"PARED",collisionable:true});
+			JH5.siExiste("Enemigo",function(){
 				for(let j=0; j<4; j++){
-					for(let i=0; i<inv.enemigosLinea; i++){
+					for(let i=0; i<invasores.enemigosLinea; i++){
 						let e=new Enemigo(i*(32+24)+10, 10+(j*80), this);
 						//inv.enemigos.push(e);
 						//console.log(inv.tablero);	
-						inv.tablero.insertarObjeto(e);
+						invasores.tablero.insertarObjeto(e);
 					}
 				}
-				
-				
-				var b=JH5.c("button",null,null,JH5.body());
-				b.innerHTML="Comenzar";
-				JH5.evento(b,"onclick", function(){
-					this.style.display="none";
+			});
+			
+			
+			var b=JH5.c("button",null,null,JH5.body());
+			b.innerHTML="Comenzar";
+			JH5.evento(b,"onclick", function(){
+				this.style.display="none";
 
-					invasores.tablero.comenzar();
-					invasores.cargarMusica("recursos/Castlevania.mp3");
-					invasores.volumenMusica(0.8);
-				})/**/
+				invasores.tablero.comenzar();
+				invasores.cargarMusica("recursos/Castlevania.mp3");
+				invasores.volumenMusica(0.8);
+			})/**/
 				
-			},this, tablero);
 		},this, tablero);
 	}
 }

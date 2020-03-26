@@ -28,7 +28,24 @@ JH5.d=window.document;
 JH5.b=null;
 JH5.h=null;
 
-
+JH5.siExiste=function(o,f,parametros, tiempo){
+	tiempo=tiempo||0;
+	if(tiempo<1000){
+		tiempo+=100;
+	}else if(tiempo<10000){
+		tiempo+=1000;
+	}
+	let existe=false;
+	eval("existe=typeof("+o+")!=\"undefined\";");
+	if(!existe){
+		setTimeout(function(){
+			JH5.siExiste(o,f,parametros, tiempo);
+		}, tiempo);
+	}else{
+		//console.log("Ya existe",o);
+		JH5.e(f,null,parametros);
+	}
+}
 /**
  * Llama a la función indicada cuando el objeto existe
  * @param function f función a llamar cuando el objeto esté creado
@@ -55,8 +72,8 @@ JH5.siListo=function(f,o, tiempo){
 			}else if(tiempo<10000){
 				tiempo+=1000;
 			}
-			if(i==undefined){
-				JH5.log("cargando "+o+ " " +tiempo);
+			if(i=="undefined"){
+				//JH5.log("cargando "+o+ " " +tiempo);
 				setTimeout(function(){
 					JH5.siListo(f,o, tiempo);
 				}, tiempo);
@@ -100,7 +117,7 @@ JH5.c=function(t, id, c, oC){
  */
 JH5.e=function(f,o,p){
 	if(typeof(f)=="function"){
-		f.call(o, p);
+		return f.call(o, p);
 	}else{
 		eval(f);
 	}
@@ -135,47 +152,88 @@ JH5.evento=function(o,e,f){
 	
 	return 0;
 }
+JH5.javaScripts={};
+JH5.javaScriptsFuncionesPendientes=[];
+JH5.comprobarCargajavaScripts=function(){
+	//let borrar=[];
+	for(let j=0;j<JH5.javaScriptsFuncionesPendientes.length;j++){
+		
+		let paquete=JH5.javaScriptsFuncionesPendientes[j];
+		if(paquete.pendiente){
+			let cargado=true;
+			for(let i=0;i<paquete.scripts.length && cargado;i++){
+				//console.log(paquete.scripts[i],JH5.javaScripts);
+				cargado=JH5.javaScripts[paquete.scripts[i]].cargado;
+			}
+			if(cargado){
+				paquete.pendiente=false;
+				if(paquete.f){
+					paquete.f.call(paquete.o,paquete.parametros);
+				}
+			}
+		}
+	}
+	
+}
 /**
  * Método de carga de ficheros Javascript
- * @param string u es la URL de nuestro JS
+ * @param string | array u es la URL de nuestro JS
  * @param function f será llamada cuando se produzca la carga de nuestro JS
  * @return true | false
  */
 JH5.cargarJS=function(u,f,o,parametros){
-	var t=this, c=t.c("script");
-	
-	c.type="text/javascript";
-	c.defer="defer";
-	c.src=u;
-	
-	if(f){
-		t.evento(c,"onload", function(){
-			var c=this;
-			/*c.onload=null;
-			c.readystatechange=null;*/
-			JH5.e(f,o,parametros);
-		});
-		t.evento(c,"onreadystatechange", function(){
-			var c=this;
-			if(c.readyState=="complete" || c.radyState=="loaded"){
-				/*c.onload=null;
-				c.readystatechange=null;*/
-				JH5.e(f,o,parametros);
+	if(!Array.isArray(u)){
+		u=[u];
+	}
+	let conError=false;
+	let correcto=true;
+	JH5.javaScriptsFuncionesPendientes.push({scripts:u,f:f,o:o,parametros:parametros,pendiente:true});
+	for(let url of u){
+		if(this.javaScripts[url]==undefined){
+			this.javaScripts[url]={cargado:false};
+			var t=this, c=t.c("script");
+			
+			c.type="text/javascript";
+			c.defer="defer";
+			c.src=url;
+			
+			if(f){
+				t.evento(c,"onload", function(){
+					var c=this;
+					/*c.onload=null;
+					c.readystatechange=null;*/
+					JH5.javaScripts[url].cargado=true;
+					//JH5.e(f,o,parametros);
+					JH5.comprobarCargajavaScripts();
+				});
+				t.evento(c,"onreadystatechange", function(){
+					var c=this;
+					if(c.readyState=="complete" || c.radyState=="loaded"){
+						/*c.onload=null;
+						c.readystatechange=null;*/
+						JH5.javaScripts[url].cargado=true;
+						//JH5.e(f,o,parametros);
+						JH5.comprobarCargajavaScripts();
+					}
+				});
+
 			}
-		});
+			
+			var h=t.head();
+			if(h!=null){
+				t.poner(c,h);
+				correcto=correcto && true;
+			}else if(t.body()!=null){
+				t.poner(c,t.body());
+				correcto=correcto && true;
+			}
+			
+			correcto=false;
+		}
 
 	}
+	return correcto;
 	
-	var h=t.head();
-	if(h!=null){
-		t.poner(c,h);
-		return true;
-	}else if(t.body()!=null){
-		t.poner(c,t.body());
-		return true;
-	}
-	
-	return false;
 }
 
 JH5.head=function(){
